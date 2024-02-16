@@ -1,6 +1,14 @@
 # num_to_words
 Number to French converter
 
+## Installation
+
+    - source kata/bin/activate 
+    - python setup.py sdist; cd dist
+    - pip install num_to_words-1.0.0.tar.gz
+
+Run num_to_words 110 for example
+
 ## The algorithm
 
 ### T**he units**
