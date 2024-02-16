@@ -8,24 +8,62 @@ class NumToWordsConverter:
                          "six-cents", "sept-cents", "huit-cents", "neuf-cents"]
 
     def convert(self, num):
-        if num < 0 or num > 999:
-            raise ValueError("Number out of range (0-999)")
-        
+            if num < 0 or num > 999999:
+                raise ValueError("Number out of range (0-999999)")
+            
+            if num == 0:
+                return self.units[0]
+            
+            result = ""
+            if num >= 1000:
+                thousands = num // 1000
+                result += self._convert_hundreds(thousands) + " mille"
+                if thousands > 1:
+                    result += "s"  # Add "s" for plural
+                
+                num %= 1000
+                if num == 0:
+                    return result
+            
+            result += " " if result else ""
+            result += self._convert_hundreds(num)
+            return result
+
+    def _convert_hundreds(self, num):
+        if num == 0:
+            return ""
+        elif num <= 16:
+            return self.units[num]
+        elif num <= 19:
+            return self.tens[1] + "-" + self.units[num % 10]
+        else:
+            result = ""
+            if num >= 100:
+                result += self.units[num // 100] + "-cents"
+                num %= 100
+                if num == 0:
+                    return result
+            
+            result += " " if result else ""
+            if num < 20:
+                result += self._convert_tens(num)
+            else:
+                result += self.tens[num // 10]
+                if num % 10 != 0:
+                    result += "-" + self.units[num % 10]
+            return result
+
+    def _convert_tens(self, num):
         if num <= 16:
             return self.units[num]
-        
-        if num <= 19:
-            return self.tens[1] + "-" + self.units[num % 10]
-        
-        if num < 100:
+        elif num == 70:
+            return "soixante-dix"
+        elif num == 80:
+            return "quatre-vingts"
+        elif num == 90:
+            return "quatre-vingt-dix"
+        else:
             return self.tens[num // 10] + ("-" + self.units[num % 10] if num % 10 != 0 else "")
-        
-        if num < 1000:
-            result = self.hundreds[num // 100]
-            remainder = num % 100
-            if remainder != 0:
-                result += "-" + self.convert(remainder)
-            return result
 
 def main():
     """
@@ -37,11 +75,13 @@ def main():
         print("Usage: num_to_words <number>")
         sys.exit(1)
 
+    input_list = eval(sys.argv[1])
+
     try:
-        num = int(sys.argv[1])
         converter = NumToWordsConverter()
-        result = converter.convert(num)
-        print(result)
+        for num in input_list:
+            result = converter.convert(num)
+            print(f"{num}: {result}")
     except ValueError as e:
         print("Error:", e)
         sys.exit(1)
